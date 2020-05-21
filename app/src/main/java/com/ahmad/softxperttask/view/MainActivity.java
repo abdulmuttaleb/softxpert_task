@@ -19,13 +19,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "MainActivity";
 
     private RecyclerView carsRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CarsRecyclerAdapter carsAdapter = new CarsRecyclerAdapter();
+    private int currentPage = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,13 +37,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void initActivityUI(){
         carsRecyclerView = findViewById(R.id.rv_cars);
+        mSwipeRefreshLayout = findViewById(R.id.srl_main);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         carsRecyclerView.setLayoutManager(linearLayoutManager);
         carsRecyclerView.setAdapter(carsAdapter);
     }
 
     private void fetchData(){
-        URL buildUrl = ApiCall.buildUrl(1);
+        URL buildUrl = ApiCall.buildUrl(currentPage);
         new FetchDataTask().execute(buildUrl);
     }
 
@@ -80,5 +84,12 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        carsAdapter.clearCars();
+        fetchData();
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 }
