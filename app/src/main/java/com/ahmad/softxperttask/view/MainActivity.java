@@ -1,5 +1,6 @@
 package com.ahmad.softxperttask.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +15,7 @@ import com.ahmad.softxperttask.R;
 import com.ahmad.softxperttask.adapter.CarsRecyclerAdapter;
 import com.ahmad.softxperttask.model.Car;
 import com.ahmad.softxperttask.utils.ApiCall;
+import com.ahmad.softxperttask.utils.PaginationScrollListener;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CarsRecyclerAdapter carsAdapter = new CarsRecyclerAdapter();
     private int currentPage = 1;
+    private int lastPage = 4;
+    boolean isLoading = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +47,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         carsRecyclerView.setLayoutManager(linearLayoutManager);
         carsRecyclerView.setAdapter(carsAdapter);
+
+        //adding scroll listener
+        carsRecyclerView.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
+            @Override
+            public boolean isLastPage() {
+                return currentPage == lastPage;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+
+            @Override
+            public void loadMoreItems() {
+                Log.e(TAG, "loadMoreItems: page"+currentPage);
+                isLoading = true;
+                currentPage++;
+                fetchData();
+            }
+        });
     }
 
     private void fetchData(){
@@ -75,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 for (Car car: fetchedCars) {
                     carsAdapter.addToCars(car);
                 }
+                isLoading = false;
             }else{
                 runOnUiThread(new Runnable() {
                     @Override
@@ -89,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         carsAdapter.clearCars();
+        currentPage = 1;
         fetchData();
         mSwipeRefreshLayout.setRefreshing(false);
     }
