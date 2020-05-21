@@ -3,6 +3,7 @@ package com.ahmad.softxperttask.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ahmad.softxperttask.R;
 import com.ahmad.softxperttask.model.Car;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,11 @@ public class CarsRecyclerAdapter extends RecyclerView.Adapter<CarsRecyclerAdapte
         holder.carBrand.setText(car.getBrand());
         holder.carIsUsed.setText(car.getUsed()? "USED" : "NEW");
         holder.carConstructionYear.setText(car.getConstructionYear());
+        Picasso.get()
+                .load(car.getImageUrl())
+                .centerCrop()
+                .resize(150,150)
+                .into(holder.carImageView);
     }
 
     @Override
@@ -54,12 +61,14 @@ public class CarsRecyclerAdapter extends RecyclerView.Adapter<CarsRecyclerAdapte
         TextView carBrand;
         TextView carIsUsed;
         TextView carConstructionYear;
+        ImageView carImageView;
 
         CarsViewHolder(View itemView){
             super(itemView);
             carBrand = itemView.findViewById(R.id.tv_car_name);
             carIsUsed = itemView.findViewById(R.id.tv_car_used);
             carConstructionYear = itemView.findViewById(R.id.tv_car_year);
+            carImageView = itemView.findViewById(R.id.iv_car);
         }
     }
 }
